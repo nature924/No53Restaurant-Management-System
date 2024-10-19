@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CaipinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.caipin_uuid_number as caipinUuidNumber
+        ,a.caipin_name as caipinName
+        ,a.caipin_photo as caipinPhoto
+        ,a.caipin_types as caipinTypes
+        ,a.caipin_price as caipinPrice
+        ,a.caipin_kucun_number as caipinKucunNumber
+        ,a.caipin_old_money as caipinOldMoney
+        ,a.caipin_new_money as caipinNewMoney
+        ,a.caipin_clicknum as caipinClicknum
+        ,a.caipin_content as caipinContent
+        ,a.shangxia_types as shangxiaTypes
+        ,a.caipin_delete as caipinDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CaipinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM caipin  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.caipinUuidNumber != '' and params.caipinUuidNumber != null and params.caipinUuidNumber != 'null' ">
+                and a.caipin_uuid_number like CONCAT('%',#{params.caipinUuidNumber},'%')
+            </if>
+            <if test=" params.caipinName != '' and params.caipinName != null and params.caipinName != 'null' ">
+                and a.caipin_name like CONCAT('%',#{params.caipinName},'%')
+            </if>
+            <if test="params.caipinTypes != null and params.caipinTypes != ''">
+                and a.caipin_types = #{params.caipinTypes}
+            </if>
+            <if test="params.caipinPriceStart != null and params.caipinPriceStart != ''">
+                <![CDATA[  and a.caipin_price >= #{params.caipinPriceStart}   ]]>
+            </if>
+            <if test="params.caipinPriceEnd != null and params.caipinPriceEnd != ''">
+                <![CDATA[  and a.caipin_price <= #{params.caipinPriceEnd}   ]]>
+            </if>
+             <if test="params.caipinPrice != null and params.caipinPrice != ''">
+                and a.caipin_price = #{params.caipinPrice}
+             </if>
+            <if test="params.caipinKucunNumberStart != null and params.caipinKucunNumberStart != ''">
+                <![CDATA[  and a.caipin_kucun_number >= #{params.caipinKucunNumberStart}   ]]>
+            </if>
+            <if test="params.caipinKucunNumberEnd != null and params.caipinKucunNumberEnd != ''">
+                <![CDATA[  and a.caipin_kucun_number <= #{params.caipinKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.caipinKucunNumber != null and params.caipinKucunNumber != ''">
+                and a.caipin_kucun_number = #{params.caipinKucunNumber}
+             </if>
+            <if test="params.caipinOldMoneyStart != null ">
+                <![CDATA[  and a.caipin_old_money >= #{params.caipinOldMoneyStart}   ]]>
+            </if>
+            <if test="params.caipinOldMoneyEnd != null ">
+                <![CDATA[  and a.caipin_old_money <= #{params.caipinOldMoneyEnd}   ]]>
+            </if>
+            <if test="params.caipinNewMoneyStart != null ">
+                <![CDATA[  and a.caipin_new_money >= #{params.caipinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.caipinNewMoneyEnd != null ">
+                <![CDATA[  and a.caipin_new_money <= #{params.caipinNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.caipinClicknumStart != null and params.caipinClicknumStart != ''">
+                <![CDATA[  and a.caipin_clicknum >= #{params.caipinClicknumStart}   ]]>
+            </if>
+            <if test="params.caipinClicknumEnd != null and params.caipinClicknumEnd != ''">
+                <![CDATA[  and a.caipin_clicknum <= #{params.caipinClicknumEnd}   ]]>
+            </if>
+             <if test="params.caipinClicknum != null and params.caipinClicknum != ''">
+                and a.caipin_clicknum = #{params.caipinClicknum}
+             </if>
+            <if test=" params.caipinContent != '' and params.caipinContent != null and params.caipinContent != 'null' ">
+                and a.caipin_content like CONCAT('%',#{params.caipinContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null and params.shangxiaTypes != ''">
+                and a.shangxia_types = #{params.shangxiaTypes}
+            </if>
+            <if test="params.caipinDeleteStart != null and params.caipinDeleteStart != ''">
+                <![CDATA[  and a.caipin_delete >= #{params.caipinDeleteStart}   ]]>
+            </if>
+            <if test="params.caipinDeleteEnd != null and params.caipinDeleteEnd != ''">
+                <![CDATA[  and a.caipin_delete <= #{params.caipinDeleteEnd}   ]]>
+            </if>
+             <if test="params.caipinDelete != null and params.caipinDelete != ''">
+                and a.caipin_delete = #{params.caipinDelete}
+             </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

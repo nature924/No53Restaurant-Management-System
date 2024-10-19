@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CaipinOrderDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.caipin_order_uuid_number as caipinOrderUuidNumber
+        ,a.caipin_id as caipinId
+        ,a.yonghu_id as yonghuId
+        ,a.buy_number as buyNumber
+        ,a.caipin_order_time as caipinOrderTime
+        ,a.caipin_order_true_price as caipinOrderTruePrice
+        ,a.caipin_order_types as caipinOrderTypes
+        ,a.caipin_order_payment_types as caipinOrderPaymentTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CaipinOrderView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,caipin.caipin_uuid_number as caipinUuidNumber
+        ,caipin.caipin_name as caipinName
+        ,caipin.caipin_photo as caipinPhoto
+        ,caipin.caipin_types as caipinTypes
+        ,caipin.caipin_price as caipinPrice
+        ,caipin.caipin_kucun_number as caipinKucunNumber
+        ,caipin.caipin_old_money as caipinOldMoney
+        ,caipin.caipin_new_money as caipinNewMoney
+        ,caipin.caipin_clicknum as caipinClicknum
+        ,caipin.caipin_content as caipinContent
+        ,caipin.shangxia_types as shangxiaTypes
+        ,caipin.caipin_delete as caipinDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_sum_jifen as yonghuSumJifen
+        ,yonghu.yonghu_new_jifen as yonghuNewJifen
+        ,yonghu.huiyuandengji_types as huiyuandengjiTypes
+
+        FROM caipin_order  a
+        left JOIN caipin caipin ON a.caipin_id = caipin.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.caipinOrderUuidNumber != '' and params.caipinOrderUuidNumber != null and params.caipinOrderUuidNumber != 'null' ">
+                and a.caipin_order_uuid_number like CONCAT('%',#{params.caipinOrderUuidNumber},'%')
+            </if>
+            <if test="params.caipinId != null and params.caipinId != ''">
+                and (
+                    a.caipin_id = #{params.caipinId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.buyNumberStart != null and params.buyNumberStart != ''">
+                <![CDATA[  and a.buy_number >= #{params.buyNumberStart}   ]]>
+            </if>
+            <if test="params.buyNumberEnd != null and params.buyNumberEnd != ''">
+                <![CDATA[  and a.buy_number <= #{params.buyNumberEnd}   ]]>
+            </if>
+             <if test="params.buyNumber != null and params.buyNumber != ''">
+                and a.buy_number = #{params.buyNumber}
+             </if>
+            <if test=" params.caipinOrderTimeStart != '' and params.caipinOrderTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.caipin_order_time) >= UNIX_TIMESTAMP(#{params.caipinOrderTimeStart}) ]]>
+            </if>
+            <if test=" params.caipinOrderTimeEnd != '' and params.caipinOrderTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.caipin_order_time) <= UNIX_TIMESTAMP(#{params.caipinOrderTimeEnd}) ]]>
+            </if>
+            <if test="params.caipinOrderTruePriceStart != null ">
+                <![CDATA[  and a.caipin_order_true_price >= #{params.caipinOrderTruePriceStart}   ]]>
+            </if>
+            <if test="params.caipinOrderTruePriceEnd != null ">
+                <![CDATA[  and a.caipin_order_true_price <= #{params.caipinOrderTruePriceEnd}   ]]>
+            </if>
+            <if test="params.caipinOrderTypes != null and params.caipinOrderTypes != ''">
+                and a.caipin_order_types = #{params.caipinOrderTypes}
+            </if>
+            <if test="params.caipinOrderPaymentTypes != null and params.caipinOrderPaymentTypes != ''">
+                and a.caipin_order_payment_types = #{params.caipinOrderPaymentTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断菜品的id不为空 -->
+            <if test=" params.caipinIdNotNull != '' and params.caipinIdNotNull != null and params.caipinIdNotNull != 'null' ">
+                and a.caipin_id IS NOT NULL
+            </if>
+            <if test=" params.caipinUuidNumber != '' and params.caipinUuidNumber != null and params.caipinUuidNumber != 'null' ">
+                and caipin.caipin_uuid_number like CONCAT('%',#{params.caipinUuidNumber},'%')
+            </if>
+            <if test=" params.caipinName != '' and params.caipinName != null and params.caipinName != 'null' ">
+                and caipin.caipin_name like CONCAT('%',#{params.caipinName},'%')
+            </if>
+            <if test="params.caipinTypes != null  and params.caipinTypes != ''">
+                and caipin.caipin_types = #{params.caipinTypes}
+            </if>
+
+            <if test="params.caipinPriceStart != null  and params.caipinPriceStart != '' ">
+                <![CDATA[  and caipin.caipin_price >= #{params.caipinPriceStart}   ]]>
+            </if>
+            <if test="params.caipinPriceEnd != null  and params.caipinPriceEnd != '' ">
+                <![CDATA[  and caipin.caipin_price <= #{params.caipinPriceEnd}   ]]>
+            </if>
+            <if test="params.caipinPrice != null  and params.caipinPrice != '' ">
+                and caipin.caipin_price = #{params.caipinPrice}
+            </if>
+            <if test="params.caipinKucunNumberStart != null  and params.caipinKucunNumberStart != '' ">
+                <![CDATA[  and caipin.caipin_kucun_number >= #{params.caipinKucunNumberStart}   ]]>
+            </if>
+            <if test="params.caipinKucunNumberEnd != null  and params.caipinKucunNumberEnd != '' ">
+                <![CDATA[  and caipin.caipin_kucun_number <= #{params.caipinKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.caipinKucunNumber != null  and params.caipinKucunNumber != '' ">
+                and caipin.caipin_kucun_number = #{params.caipinKucunNumber}
+            </if>
+            <if test="params.caipinOldMoneyStart != null ">
+                <![CDATA[  and caipin.caipin_old_money >= #{params.caipinOldMoneyStart}   ]]>
+            </if>
+            <if test="params.caipinOldMoneyEnd != null ">
+                <![CDATA[  and caipin.caipin_old_money <= #{params.caipinOldMoneyEnd}   ]]>
+            </if>
+            <if test="params.caipinNewMoneyStart != null ">
+                <![CDATA[  and caipin.caipin_new_money >= #{params.caipinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.caipinNewMoneyEnd != null ">
+                <![CDATA[  and caipin.caipin_new_money <= #{params.caipinNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.caipinClicknumStart != null  and params.caipinClicknumStart != '' ">
+                <![CDATA[  and caipin.caipin_clicknum >= #{params.caipinClicknumStart}   ]]>
+            </if>
+            <if test="params.caipinClicknumEnd != null  and params.caipinClicknumEnd != '' ">
+                <![CDATA[  and caipin.caipin_clicknum <= #{params.caipinClicknumEnd}   ]]>
+            </if>
+            <if test="params.caipinClicknum != null  and params.caipinClicknum != '' ">
+                and caipin.caipin_clicknum = #{params.caipinClicknum}
+            </if>
+            <if test=" params.caipinContent != '' and params.caipinContent != null and params.caipinContent != 'null' ">
+                and caipin.caipin_content like CONCAT('%',#{params.caipinContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and caipin.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.caipinDeleteStart != null  and params.caipinDeleteStart != '' ">
+                <![CDATA[  and caipin.caipin_delete >= #{params.caipinDeleteStart}   ]]>
+            </if>
+            <if test="params.caipinDeleteEnd != null  and params.caipinDeleteEnd != '' ">
+                <![CDATA[  and caipin.caipin_delete <= #{params.caipinDeleteEnd}   ]]>
+            </if>
+            <if test="params.caipinDelete != null  and params.caipinDelete != '' ">
+                and caipin.caipin_delete = #{params.caipinDelete}
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.yonghuSumJifenStart != null ">
+                <![CDATA[  and yonghu.yonghu_sum_jifen >= #{params.yonghuSumJifenStart}   ]]>
+            </if>
+            <if test="params.yonghuSumJifenEnd != null ">
+                <![CDATA[  and yonghu.yonghu_sum_jifen <= #{params.yonghuSumJifenEnd}   ]]>
+            </if>
+            <if test="params.yonghuNewJifenStart != null ">
+                <![CDATA[  and yonghu.yonghu_new_jifen >= #{params.yonghuNewJifenStart}   ]]>
+            </if>
+            <if test="params.yonghuNewJifenEnd != null ">
+                <![CDATA[  and yonghu.yonghu_new_jifen <= #{params.yonghuNewJifenEnd}   ]]>
+            </if>
+            <if test="params.huiyuandengjiTypes != null  and params.huiyuandengjiTypes != ''">
+                and yonghu.huiyuandengji_types = #{params.huiyuandengjiTypes}
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
